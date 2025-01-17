@@ -116,9 +116,12 @@ export class MemoryPostgresChat implements INodeType {
 		});
 
 		async function closeFunction() {
-    if (pool && !pool.ended) {
-        await pool.end();
-    	}
+			try {
+				const client = await pool.connect();
+				client.release(); // Safely release the client
+			} catch (error) {
+				console.error('Error releasing the database connection:', error);
+			}
 		}
 		return {
 			closeFunction,
